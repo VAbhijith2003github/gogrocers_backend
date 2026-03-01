@@ -10,7 +10,7 @@ async function createQuery(userid, userEmail, query) {
     uid: userid,
     email: userEmail,
     query,
-    timestamp: new Date(),
+    timestamp: admin.firestore.Timestamp.now(),
   };
 
   if (!snap.exists) {
