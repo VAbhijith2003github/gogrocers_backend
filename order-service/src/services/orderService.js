@@ -1,23 +1,49 @@
 const { db } = require("../config/firebase");
 const axios = require("axios");
+const { emitOrderPlaced } = require("../producers/orderProducer");
 
 const CART_SERVICE_URL = process.env.CART_SERVICE_URL || "http://localhost:3002";
 
-// Appends order to onorder[], then calls cart-service to reset cart
+// Mirrors: adduserorder.js
+// Appends the order to onorder[], then resets the cart via HTTP call to cart-service
 async function addUserOrder(userid, order) {
-  const ref = db.collection("orders").doc(userid);
+  const ref = db.collection("users").doc(userid);
   const snap = await ref.get();
-  const existing = snap.exists ? snap.data() : {};
-  const updatedOrders = [...(existing.onorder || []), order];
 
-  await ref.set({
-    ...existing,
-    onorder: updatedOrders,
-    completed: existing.completed || [],
+  if (!snap.exists) {
+    throw new Error("User not found");
+  }
+
+  const userData = snap.data();
+
+  // 1. Save the order to Firestore
+  const admin = require("firebase-admin");
+  await ref.update({
+    onorder: admin.firestore.FieldValue.arrayUnion(order),
   });
 
-  // Call cart-service over HTTP to reset cart (true microservice communication)
-  await axios.delete(`${CART_SERVICE_URL}/api/cart/${userid}`);
+  // 2. Reset the cart via HTTP call to cart-service
+  try {
+    await axios.delete(`${CART_SERVICE_URL}/api/cart/${userid}`);
+    console.log(`[order-service] Cart reset successfully for user ${userid}`);
+  } catch (err) {
+    console.error(`[order-service] Failed to reset cart for user ${userid}:`, err.message);
+  }
+
+  // 3. Emit Kafka event for email notification (Async)
+  // Payload: { orderId, email, customerName, items, total, address }
+  const orderEvent = {
+    orderId: order.id,
+    email: order.email || userData.email,
+    customerName: order.customerName || userData.name || "Customer",
+    items: order.items,
+    total: order.total,
+    address: order.address || userData.address || ""
+  };
+  
+  emitOrderPlaced(orderEvent); // Fire and forget
+
+  return { success: true, orderId: order.id };
 }
 
 async function getOrder(userid) {
