@@ -148,7 +148,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"order\": {\n    \"id\": \"ord001\",\n    \"email\": \"test@gogrocers.com\",\n    \"customerName\": \"Test User\",\n    \"items\": [\n      { \"name\": \"Milk\", \"quantity\": 2, \"price\": 40 },\n      { \"name\": \"Bread\", \"quantity\": 1, \"price\": 35 }\n    ],\n    \"total\": 115,\n    \"address\": \"123 Main Street, Bangalore\"\n  }\n}"
+              "raw": "{\n  \"order\": {\n    \"id\": \"ord001\",\n    \"email\": \"vabhijith2003@gmail.com\",\n    \"customerName\": \"Abhijith\",\n    \"items\": [\n      { \"name\": \"Milk\", \"quantity\": 2, \"price\": 40 },\n      { \"name\": \"Bread\", \"quantity\": 1, \"price\": 35 }\n    ],\n    \"total\": 115,\n    \"address\": \"123 Main Street, Bangalore\"\n  }\n}"
             }
           }
         },

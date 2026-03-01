@@ -1,25 +1,19 @@
-# --- Dependencies ---
+# Dependencies (all services)
 node_modules/
 **/node_modules/
 
-# --- Environment & Credentials ---
+# Environment variables (all services)
 .env
 **/.env
+
+# Firebase credentials (all services)
 serviceAccountKey.json
 **/serviceAccountKey.json
 
-# --- Testing ---
-newman/
-
-# --- Logs ---
+# Logs
 *.log
 **/*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# --- System/OS ---
+# OS
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
