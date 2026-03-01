@@ -1,5 +1,6 @@
 const { db } = require("../config/firebase");
 const { resetCart } = require("./cartService");
+const { sendOrderConfirmationEmail } = require("./emailService");
 
 // Mirrors: adduserorder.js
 // Appends the order to onorder[], then resets the cart
@@ -16,6 +17,13 @@ async function addUserOrder(userid, order) {
   });
 
   await resetCart(userid);
+
+  // Send order confirmation email (fire-and-forget — won't break order flow on failure)
+  if (order.email) {
+    sendOrderConfirmationEmail(order.email, order.customerName || "Customer", order).catch(
+      (err) => console.error("[orderService] Email notification failed:", err)
+    );
+  }
 }
 
 // Mirrors: getorder.js

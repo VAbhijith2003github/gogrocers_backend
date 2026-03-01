@@ -1,3 +1,19 @@
+# Dependencies (all services)
 node_modules/
+**/node_modules/
+
+# Environment variables (all services)
 .env
+**/.env
+
+# Firebase credentials (all services)
 serviceAccountKey.json
+**/serviceAccountKey.json
+
+# Logs
+*.log
+**/*.log
+
+# OS
+.DS_Store
+Thumbs.db
