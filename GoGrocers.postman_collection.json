@@ -1,0 +1,194 @@
+{
+  "info": {
+    "name": "GoGrocers Microservices",
+    "_postman_id": "gogrocers-microservices-v1",
+    "description": "API collection for GoGrocers microservices monorepo.\n\nServices:\n- user-service    → PORT 3001\n- cart-service    → PORT 3002\n- order-service   → PORT 3003\n- query-service   → PORT 3004",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "user_url", "value": "http://localhost:3001" },
+    { "key": "cart_url", "value": "http://localhost:3002" },
+    { "key": "order_url", "value": "http://localhost:3003" },
+    { "key": "query_url", "value": "http://localhost:3004" },
+    { "key": "uid", "value": "testuser1" }
+  ],
+  "item": [
+    {
+      "name": "🟢 Health Checks",
+      "item": [
+        {
+          "name": "user-service health",
+          "request": {
+            "method": "GET",
+            "url": "{{user_url}}/health"
+          }
+        },
+        {
+          "name": "cart-service health",
+          "request": {
+            "method": "GET",
+            "url": "{{cart_url}}/health"
+          }
+        },
+        {
+          "name": "order-service health",
+          "request": {
+            "method": "GET",
+            "url": "{{order_url}}/health"
+          }
+        },
+        {
+          "name": "query-service health",
+          "request": {
+            "method": "GET",
+            "url": "{{query_url}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 User Service",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "url": "{{user_url}}/api/users/create",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"email\": \"test@gogrocers.com\",\n  \"name\": \"Test User\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "url": "{{user_url}}/api/users/{{uid}}"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "url": "{{user_url}}/api/users/{{uid}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"phonenumber\": \"9876543210\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Address",
+          "request": {
+            "method": "PUT",
+            "url": "{{user_url}}/api/users/{{uid}}/add-address",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": \"123 Main Street, Bangalore, KA 560001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Set Address (replace all)",
+          "request": {
+            "method": "PUT",
+            "url": "{{user_url}}/api/users/{{uid}}/set-address",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addresses\": [\"123 Main Street, Bangalore\", \"456 Park Avenue, Mumbai\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Cart Service",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "url": "{{cart_url}}/api/cart/{{uid}}"
+          }
+        },
+        {
+          "name": "Update Cart",
+          "request": {
+            "method": "PUT",
+            "url": "{{cart_url}}/api/cart/{{uid}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart\": [\n    { \"id\": \"prod1\", \"name\": \"Milk\", \"quantity\": 2, \"price\": 40 },\n    { \"id\": \"prod2\", \"name\": \"Bread\", \"quantity\": 1, \"price\": 35 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Cart",
+          "request": {
+            "method": "DELETE",
+            "url": "{{cart_url}}/api/cart/{{uid}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Order Service",
+      "item": [
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "url": "{{order_url}}/api/orders/{{uid}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order\": {\n    \"id\": \"ord001\",\n    \"email\": \"test@gogrocers.com\",\n    \"customerName\": \"Test User\",\n    \"items\": [\n      { \"name\": \"Milk\", \"quantity\": 2, \"price\": 40 },\n      { \"name\": \"Bread\", \"quantity\": 1, \"price\": 35 }\n    ],\n    \"total\": 115,\n    \"address\": \"123 Main Street, Bangalore\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{order_url}}/api/orders/{{uid}}"
+          }
+        },
+        {
+          "name": "Mark Order Complete",
+          "request": {
+            "method": "PUT",
+            "url": "{{order_url}}/api/orders/{{uid}}/complete",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order\": {\n    \"id\": \"ord001\",\n    \"items\": [\n      { \"name\": \"Milk\", \"quantity\": 2, \"price\": 40 },\n      { \"name\": \"Bread\", \"quantity\": 1, \"price\": 35 }\n    ],\n    \"total\": 115\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❓ Query Service",
+      "item": [
+        {
+          "name": "Submit Query",
+          "request": {
+            "method": "POST",
+            "url": "{{query_url}}/api/queries",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"email\": \"test@gogrocers.com\",\n  \"query\": \"Where is my order?\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
