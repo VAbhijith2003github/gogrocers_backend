@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { addUserOrder, getOrder, markOrderAsComplete } = require("../services/orderService");
+const verifyToken = require("../middleware/authMiddleware");
+
+// Protect all order routes
+router.use(verifyToken);
+
 
 router.post("/:uid", async (req, res) => {
   const { order } = req.body;

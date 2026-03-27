@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { createUser, getUser, updateUser, setAddress, addAddress } = require("../services/userService");
+const verifyToken = require("../middleware/authMiddleware");
+
+// Protect all user routes
+router.use(verifyToken);
 
 router.post("/create", async (req, res) => {
   const { uid, email, name } = req.body;
