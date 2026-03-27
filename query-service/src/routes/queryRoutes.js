@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { createQuery } = require("../services/queryService");
+const verifyToken = require("../middleware/authMiddleware");
+
+// Protect all query routes
+router.use(verifyToken);
 
 router.post("/", async (req, res) => {
   const { uid, email, query } = req.body;

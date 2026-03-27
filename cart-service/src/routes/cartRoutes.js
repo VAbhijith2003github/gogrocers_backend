@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { getCart, updateCart, resetCart } = require("../services/cartService");
+const verifyToken = require("../middleware/authMiddleware");
+
+// Protect all cart routes
+router.use(verifyToken);
 
 router.get("/:uid", async (req, res) => {
   try {
