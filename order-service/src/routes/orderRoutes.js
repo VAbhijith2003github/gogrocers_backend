@@ -11,7 +11,8 @@ router.post("/:uid", async (req, res) => {
   const { order } = req.body;
   if (!order) return res.status(400).json({ error: "order is required" });
   try {
-    await addUserOrder(req.params.uid, order);
+    const authHeader = req.headers["authorization"];
+    await addUserOrder(req.params.uid, order, authHeader);
     res.status(201).json({ message: "Order placed successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });

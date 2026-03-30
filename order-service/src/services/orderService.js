@@ -6,7 +6,7 @@ const CART_SERVICE_URL = process.env.CART_SERVICE_URL || "http://localhost:3002"
 
 // Mirrors: adduserorder.js
 // Appends the order to onorder[] in the dedicated 'orders' collection, then resets the cart
-async function addUserOrder(userid, order) {
+async function addUserOrder(userid, order, authHeader) {
   // Fetch user data (for email, name) from users collection
   const userRef = db.collection("users").doc(userid);
   const userSnap = await userRef.get();
@@ -28,7 +28,9 @@ async function addUserOrder(userid, order) {
 
   // Reset the cart via HTTP call to cart-service
   try {
-    await axios.delete(`${CART_SERVICE_URL}/api/cart/${userid}`);
+    await axios.delete(`${CART_SERVICE_URL}/api/cart/${userid}`, {
+      headers: { Authorization: authHeader }
+    });
     console.log(`[order-service] Cart reset successfully for user ${userid}`);
   } catch (err) {
     console.error(`[order-service] Failed to reset cart for user ${userid}:`, err.message);
