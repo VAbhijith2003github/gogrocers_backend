@@ -10,9 +10,9 @@ async function sendOrderConfirmationEmail(toEmail, customerName, order) {
     .map(
       (item) => `
         <tr>
-          <td style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0;">${item.name}</td>
-          <td style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; text-align:center;">${item.quantity}</td>
-          <td style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; text-align:right;">₹${item.price}</td>
+          <td style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0;">${item.name || "Item"}</td>
+          <td style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; text-align:center;">${item.quantity || item.frequency || 1}</td>
+          <td style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; text-align:right;">₹${item.price || item.priceint || 0}</td>
         </tr>`
     )
     .join("");
