@@ -12,6 +12,8 @@ async function addUserOrder(userid, order, authHeader) {
   const userSnap = await userRef.get();
   const userData = userSnap.exists ? userSnap.data() : {};
 
+  console.log(`[order-service] Received order data for user ${userid}:`, JSON.stringify(order));
+
   // Read/write the order from the dedicated 'orders' collection
   const orderRef = db.collection("orders").doc(userid);
   const orderSnap = await orderRef.get();
