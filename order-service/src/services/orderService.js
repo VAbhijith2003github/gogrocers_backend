@@ -5,24 +5,28 @@ const { emitOrderPlaced } = require("../producers/orderProducer");
 const CART_SERVICE_URL = process.env.CART_SERVICE_URL || "http://localhost:3002";
 
 // Mirrors: adduserorder.js
-// Appends the order to onorder[], then resets the cart via HTTP call to cart-service
+// Appends the order to onorder[] in the dedicated 'orders' collection, then resets the cart
 async function addUserOrder(userid, order) {
-  const ref = db.collection("users").doc(userid);
-  const snap = await ref.get();
+  // Fetch user data (for email, name) from users collection
+  const userRef = db.collection("users").doc(userid);
+  const userSnap = await userRef.get();
+  const userData = userSnap.exists ? userSnap.data() : {};
 
-  if (!snap.exists) {
-    throw new Error("User not found");
-  }
+  // Read/write the order from the dedicated 'orders' collection
+  const orderRef = db.collection("orders").doc(userid);
+  const orderSnap = await orderRef.get();
+  const existingData = orderSnap.exists ? orderSnap.data() : {};
+  const updatedOrders = [...(existingData.onorder || []), order];
 
-  const userData = snap.data();
-
-  // 1. Save the order to Firestore
-  const admin = require("firebase-admin");
-  await ref.update({
-    onorder: admin.firestore.FieldValue.arrayUnion(order),
+  await orderRef.set({
+    ...existingData,
+    onorder: updatedOrders,
+    completed: existingData.completed || [],
   });
 
-  // 2. Reset the cart via HTTP call to cart-service
+  console.log(`[order-service] Order added to 'orders' collection for user ${userid}`);
+
+  // Reset the cart via HTTP call to cart-service
   try {
     await axios.delete(`${CART_SERVICE_URL}/api/cart/${userid}`);
     console.log(`[order-service] Cart reset successfully for user ${userid}`);
@@ -30,8 +34,7 @@ async function addUserOrder(userid, order) {
     console.error(`[order-service] Failed to reset cart for user ${userid}:`, err.message);
   }
 
-  // 3. Emit Kafka event for email notification (Async)
-  // Payload: { orderId, email, customerName, items, total, address }
+  // Emit Kafka event for email notification (Fire and forget)
   const orderEvent = {
     orderId: order.id,
     email: order.email || userData.email,
@@ -40,8 +43,8 @@ async function addUserOrder(userid, order) {
     total: order.total,
     address: order.address || userData.address || ""
   };
-  
-  emitOrderPlaced(orderEvent); // Fire and forget
+
+  emitOrderPlaced(orderEvent);
 
   return { success: true, orderId: order.id };
 }
