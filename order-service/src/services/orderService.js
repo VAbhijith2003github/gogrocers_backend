@@ -12,8 +12,6 @@ async function addUserOrder(userid, order, authHeader) {
   const userSnap = await userRef.get();
   const userData = userSnap.exists ? userSnap.data() : {};
 
-  console.log(`[order-service] Received order data for user ${userid}:`, JSON.stringify(order));
-
   // Read/write the order from the dedicated 'orders' collection
   const orderRef = db.collection("orders").doc(userid);
   const orderSnap = await orderRef.get();
@@ -39,13 +37,19 @@ async function addUserOrder(userid, order, authHeader) {
   }
 
   // Emit Kafka event for email notification (Fire and forget)
+  // Maps actual frontend fields: orderdetail -> items, totalPrice -> total, deliveryaddress -> address
+  const addr = order.deliveryaddress || {};
+  const formattedAddress = addr.street 
+    ? `${addr.street}, ${addr.landmark ? addr.landmark + ', ' : ''}${addr.city}, ${addr.state} - ${addr.pincode}`
+    : userData.address || "";
+
   const orderEvent = {
     orderId: order.id,
     email: order.email || userData.email,
-    customerName: order.customerName || userData.name || "Customer",
-    items: order.items,
-    total: order.total,
-    address: order.address || userData.address || ""
+    customerName: order.customerName || userData.name || (addr.name) || "Customer",
+    items: order.orderdetail || [],
+    total: order.totalPrice || order.orderbillamount || 0,
+    address: formattedAddress
   };
 
   emitOrderPlaced(orderEvent);
