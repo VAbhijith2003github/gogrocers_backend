@@ -6,7 +6,19 @@ const verifyToken = require("../middleware/authMiddleware");
 // Protect all cart routes
 router.use(verifyToken);
 
-router.get("/:uid", async (req, res) => {
+// Middleware to authorize user actions
+const authorizeUser = (req, res, next) => {
+  const targetUid = req.params.uid || req.body.uid;
+  if (!targetUid) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+  if (targetUid !== req.user.uid) {
+    return res.status(403).json({ error: "Forbidden: Access denied" });
+  }
+  next();
+};
+
+router.get("/:uid", authorizeUser, async (req, res) => {
   try {
     const cart = await getCart(req.params.uid);
     if (!cart) return res.status(404).json({ error: "Cart not found" });
@@ -16,7 +28,7 @@ router.get("/:uid", async (req, res) => {
   }
 });
 
-router.put("/:uid", async (req, res) => {
+router.put("/:uid", authorizeUser, async (req, res) => {
   const { cart } = req.body;
   if (!Array.isArray(cart))
     return res.status(400).json({ error: "cart must be an array" });
@@ -28,7 +40,7 @@ router.put("/:uid", async (req, res) => {
   }
 });
 
-router.delete("/:uid", async (req, res) => {
+router.delete("/:uid", authorizeUser, async (req, res) => {
   try {
     await resetCart(req.params.uid);
     res.json({ message: "Cart reset successfully" });

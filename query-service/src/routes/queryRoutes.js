@@ -6,7 +6,19 @@ const verifyToken = require("../middleware/authMiddleware");
 // Protect all query routes
 router.use(verifyToken);
 
-router.post("/", async (req, res) => {
+// Middleware to authorize user actions
+const authorizeUser = (req, res, next) => {
+  const targetUid = req.params.uid || req.body.uid;
+  if (!targetUid) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+  if (targetUid !== req.user.uid) {
+    return res.status(403).json({ error: "Forbidden: Access denied" });
+  }
+  next();
+};
+
+router.post("/", authorizeUser, async (req, res) => {
   const { uid, email, query } = req.body;
   if (!uid || !email || !query)
     return res.status(400).json({ error: "uid, email, and query are required" });

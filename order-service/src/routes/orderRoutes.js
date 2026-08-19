@@ -6,8 +6,19 @@ const verifyToken = require("../middleware/authMiddleware");
 // Protect all order routes
 router.use(verifyToken);
 
+// Middleware to authorize user actions
+const authorizeUser = (req, res, next) => {
+  const targetUid = req.params.uid || req.body.uid;
+  if (!targetUid) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+  if (targetUid !== req.user.uid) {
+    return res.status(403).json({ error: "Forbidden: Access denied" });
+  }
+  next();
+};
 
-router.post("/:uid", async (req, res) => {
+router.post("/:uid", authorizeUser, async (req, res) => {
   const { order } = req.body;
   if (!order) return res.status(400).json({ error: "order is required" });
   try {
@@ -19,7 +30,7 @@ router.post("/:uid", async (req, res) => {
   }
 });
 
-router.get("/:uid", async (req, res) => {
+router.get("/:uid", authorizeUser, async (req, res) => {
   try {
     const orders = await getOrder(req.params.uid);
     if (!orders) return res.status(404).json({ error: "No orders found" });
@@ -29,7 +40,7 @@ router.get("/:uid", async (req, res) => {
   }
 });
 
-router.put("/:uid/complete", async (req, res) => {
+router.put("/:uid/complete", authorizeUser, async (req, res) => {
   const { order } = req.body;
   if (!order) return res.status(400).json({ error: "order is required" });
   try {
