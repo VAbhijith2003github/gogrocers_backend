@@ -6,7 +6,19 @@ const verifyToken = require("../middleware/authMiddleware");
 // Protect all user routes
 router.use(verifyToken);
 
-router.post("/create", async (req, res) => {
+// Middleware to authorize user actions
+const authorizeUser = (req, res, next) => {
+  const targetUid = req.params.uid || req.body.uid;
+  if (!targetUid) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+  if (targetUid !== req.user.uid) {
+    return res.status(403).json({ error: "Forbidden: Access denied" });
+  }
+  next();
+};
+
+router.post("/create", authorizeUser, async (req, res) => {
   const { uid, email, name } = req.body;
   if (!uid || !email || !name)
     return res.status(400).json({ error: "uid, email, and name are required" });
@@ -18,7 +30,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.get("/:uid", async (req, res) => {
+router.get("/:uid", authorizeUser, async (req, res) => {
   try {
     const user = await getUser(req.params.uid);
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -28,7 +40,7 @@ router.get("/:uid", async (req, res) => {
   }
 });
 
-router.put("/:uid", async (req, res) => {
+router.put("/:uid", authorizeUser, async (req, res) => {
   const { name, phonenumber } = req.body;
   if (!name || !phonenumber)
     return res.status(400).json({ error: "name and phonenumber are required" });
@@ -40,7 +52,7 @@ router.put("/:uid", async (req, res) => {
   }
 });
 
-router.put("/:uid/set-address", async (req, res) => {
+router.put("/:uid/set-address", authorizeUser, async (req, res) => {
   const { addresses } = req.body;
   if (!Array.isArray(addresses))
     return res.status(400).json({ error: "addresses must be an array" });
@@ -52,7 +64,7 @@ router.put("/:uid/set-address", async (req, res) => {
   }
 });
 
-router.put("/:uid/add-address", async (req, res) => {
+router.put("/:uid/add-address", authorizeUser, async (req, res) => {
   const { address } = req.body;
   if (!address) return res.status(400).json({ error: "address is required" });
   try {

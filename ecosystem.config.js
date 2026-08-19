@@ -27,13 +27,13 @@ module.exports = {
       name: 'order-service-1', 
       script: './src/server.js', 
       cwd: './order-service',
-      env: { NODE_ENV: 'production', PORT: 3003 } 
+      env: { NODE_ENV: 'production', PORT: 3003, CART_SERVICE_URL: 'http://localhost' } 
     },
     { 
       name: 'order-service-2', 
       script: './src/server.js', 
       cwd: './order-service',
-      env: { NODE_ENV: 'production', PORT: 3013 } 
+      env: { NODE_ENV: 'production', PORT: 3013, CART_SERVICE_URL: 'http://localhost' } 
     },
 
     // QUERY SERVICE (1 Instance: 3005)

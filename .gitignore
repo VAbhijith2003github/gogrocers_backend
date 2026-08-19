@@ -17,3 +17,8 @@ serviceAccountKey.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Keys & Private SSH Credentials
+*.pem
+*.key
+awskey.pem
